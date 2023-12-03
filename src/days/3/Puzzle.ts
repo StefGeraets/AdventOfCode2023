@@ -1,10 +1,25 @@
+import { sumReducer } from '../../utils/utils';
+
 const NumberRegex = /\d+/g;
 const SymbolRegex = /[^0-9\.]/g;
 
-const sumReducer = (sum: number, num: number) => sum + num;
+type NumberEntry = {
+  type: 'number';
+  x: number;
+  y: number;
+  token: string;
+  value: number;
+};
+
+type SymbolEntry = {
+  type: 'symbol';
+  x: number;
+  y: number;
+  token: string;
+};
 
 const parse = (input: string) => {
-  const entries: Record<string, string | number>[] = [];
+  const entries: (SymbolEntry | NumberEntry)[] = [];
   input.split('\n').map((line, y) => {
     for (const number of line.matchAll(NumberRegex)) {
       entries.push({
@@ -29,10 +44,7 @@ const parse = (input: string) => {
   return entries;
 };
 
-const adjacent = (
-  numberEntity: Record<string, string | number>,
-  symbolEntity: Record<string, string | number>
-) => {
+const adjacent = (numberEntity: NumberEntry, symbolEntity: SymbolEntry) => {
   // Expand the number entity by one in each direction => point in a rectangle test.
   const x0 = numberEntity.x - 1;
   const x1 = numberEntity.x + numberEntity.token.length;
@@ -48,12 +60,16 @@ const adjacent = (
 
 const first = (input: string) => {
   const partsBox = parse(input);
-  const numbers = partsBox.filter((part) => part.type === 'number');
-  const symbols = partsBox.filter((symbol) => symbol.type === 'symbol');
+  const numbers = partsBox.filter(
+    (part) => part.type === 'number'
+  ) as NumberEntry[];
+  const symbols = partsBox.filter(
+    (symbol) => symbol.type === 'symbol'
+  ) as SymbolEntry[];
 
   const result = numbers
-    .filter((num) => symbols.some((sym) => adjacent(num, sym)))
-    .map((num) => num.value)
+    .filter((number) => symbols.some((symbol) => adjacent(number, symbol)))
+    .map((number) => number.value)
     .reduce(sumReducer, 0);
 
   return `${result}`;
@@ -63,15 +79,19 @@ const expectedFirstSolution = '4361';
 
 const second = (input: string) => {
   const partsBox = parse(input);
-  const numbers = partsBox.filter((part) => part.type === 'number');
-  const symbols = partsBox.filter((symbol) => symbol.type === 'symbol');
+  const numbers = partsBox.filter(
+    (part) => part.type === 'number'
+  ) as NumberEntry[];
+  const symbols = partsBox.filter(
+    (symbol) => symbol.type === 'symbol'
+  ) as SymbolEntry[];
 
   const result = symbols
     .filter((sym) => sym.token === '*')
     .map((symbol) => {
       const adjacentNumbers = numbers
         .filter((num) => adjacent(num, symbol))
-        .map((num) => num.value as number);
+        .map((num) => num.value);
       return adjacentNumbers.length === 2
         ? adjacentNumbers[0] * adjacentNumbers[1]
         : 0;

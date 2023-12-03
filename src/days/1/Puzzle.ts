@@ -1,5 +1,6 @@
 const sumReducer = (sum: number, num: string | number): number =>
   sum + Number(num);
+
 const first = (input: string) => {
   const isNumber = (value: number) => {
     return typeof value === 'number' && !isNaN(value);

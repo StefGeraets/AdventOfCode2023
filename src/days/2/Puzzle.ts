@@ -1,6 +1,12 @@
-const sumReducer = (sum: number, num: number): number => sum + num;
+import { sumReducer } from '../../utils/utils';
 
-const ColorMax: Record<string, number> = {
+type Colors = {
+  red: number;
+  green: number;
+  blue: number;
+};
+
+const ColorMax: Colors = {
   red: 12,
   green: 13,
   blue: 14,
@@ -17,7 +23,7 @@ const first = (input: string) => {
           const pulls = set.split(', ');
           return pulls.every((pull) => {
             const [amt, color] = pull.split(' ');
-            return ColorMax[color] >= Number(amt);
+            return ColorMax[color as keyof Colors] >= Number(amt);
           });
         })
         .every((play) => play);
@@ -35,7 +41,7 @@ const second = (input: string) => {
   const games = input.split('\n');
   const result = games
     .map((game) => {
-      const maxCount: Record<string, number> = {
+      const maxCount: Colors = {
         red: 0,
         green: 0,
         blue: 0,
@@ -47,14 +53,14 @@ const second = (input: string) => {
           const pulls = set.split(', ');
           return pulls.forEach((pull) => {
             const [amt, color] = pull.split(' ');
-            if (maxCount[color] < Number(amt)) {
-              maxCount[color] = Number(amt);
+            if (maxCount[color as keyof Colors] < Number(amt)) {
+              maxCount[color as keyof Colors] = Number(amt);
             }
           });
         });
       return maxCount.red * maxCount.green * maxCount.blue;
     })
-    .reduce(sumReducer);
+    .reduce(sumReducer, 0);
 
   return `${result}`;
 };
